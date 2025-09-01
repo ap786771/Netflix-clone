@@ -38,6 +38,54 @@ jobs:
         env:
           DOCKER_CLI_ACI: 1  
 
+      - name: Notify Slack (Success)
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [
+              {
+                \"color\": \"good\",
+                \"title\": \"✅ Build Successful\",
+                \"fields\": [
+                  {\"title\": \"Repository\", \"value\": \"${{ github.repository }}\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": false},
+                  {\"title\": \"Actor\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Workflow\", \"value\": \"${{ github.workflow }}\", \"short\": true}
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"footer_icon\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify Slack (Failure)
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{
+            \"attachments\": [
+              {
+                \"color\": \"danger\",
+                \"title\": \"❌ Build Failed\",
+                \"fields\": [
+                  {\"title\": \"Repository\", \"value\": \"${{ github.repository }}\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": false},
+                  {\"title\": \"Actor\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Workflow\", \"value\": \"${{ github.workflow }}\", \"short\": true}
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"footer_icon\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\",
+                \"ts\": $(date +%s)
+              }
+            ]
+          }" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
   deploy:
     name: Deploy
     needs: build
