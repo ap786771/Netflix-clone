@@ -107,4 +107,6 @@ jobs:
         run: trivy image abhishek450/netflix:latest
 
       - name: Run the container netflix
-        run: docker run -d --name netflix -p 8081:80 abhishek450/netflix:latest
+        run: |
+          docker rm -f netflix || true
+          docker run -d --name netflix -p 8081:80 abhishek450/netflix:latest
